@@ -18,8 +18,10 @@ SINGLEFILE=circles_v2_1_car_all.csv
 
 all: build $(CARRCS) $(SINGLEFILE)
 
+$(SINGLEFILE) : concatAllFiles.sh
 $(SINGLEFILE) : $(OUTPUTS)
-	touch $(SINGLEFILE)
+#	bash -c head -n 1 $< > $(SINGLEFILE) && for f in "$^"; do echo "Processing file $${f}..." && cat $${f} | grep -v "Systime" >> $(SINGLEFILE); done; 
+	bash concatAllFiles.sh $@ $^
 	
 $(OUTPUTS): $(BUILDDIR)/circles_v2_1_car%.csv : ../mvt-speed/mvt_11_14_to_11_18_can_speed_car%.csv $(BUILDDIR)/rcs/rcs_gps_message_raw2_car%.csv
 #echo look at $@ which came from $^
@@ -31,6 +33,7 @@ $(OUTPUTS): $(BUILDDIR)/circles_v2_1_car%.csv : ../mvt-speed/mvt_11_14_to_11_18_
 	#canspeedfile=$(word 1,$^)
 	python3 mergeCanData.py -i $(word 1,$^) -o $@ -c $(patsubst build/rcs/rcs_gps_message_raw2_car%,%, $(patsubst %.csv, %, $(word 2,$^))) -r $(word 2,$^) --controlsAllowedFile ../mvt-controls_allowed/mvt_1114_1118_controls_allowed.csv
 
+$(CARRCS): extractCarRcsFile.py
 $(CARRCS): rcs_gps_message_raw2.csv
 	python3 extractCarRcsFile.py rcs_gps_message_raw2.csv build/rcs
 

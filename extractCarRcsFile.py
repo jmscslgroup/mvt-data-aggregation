@@ -39,6 +39,7 @@ try:
         print("Generating file for car", car)
         # get df_rcs for this car only
         df_rcs_car = df_rcs[df_rcs["vin"]==int(car)]
+        df_rcs_car.drop(columns=['Unnamed: 0'], inplace=True)
         df_rcs_car.to_csv("{}/rcs_gps_message_raw2_car{}.csv".format(builddir, car))
 except:
     import traceback
